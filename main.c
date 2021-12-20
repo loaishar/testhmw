@@ -1,27 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
-int main(){
-
-
-
-int *ptr,size_of_array,sum=0;
-float  avg=0;
-printf("enter number of students: \n");
-scanf("%d",&size_of_array);
-ptr=(int*)malloc(size_of_array*sizeof(int));
-if(ptr==NULL){
-    printf("can not allocate memory");
-}
-else{
-    for (int i = 0; i < size_of_array; i++)
+int main()
+{
+    int n;
+    printf(" enter size of matrix\n");
+    scanf("%d", n);
+    int r = malloc(n * sizeof(int));
+    int arr[r][r];
+    for (int i = 0; i < n; i++)
     {
-        scanf("%d",&ptr[i]);
-        sum+=ptr[i];
+        for (int j = 0; j < n; j++)
+        {
+            scanf("%d", arr[i]);
+        }
+
     }
-    avg=sum/size_of_array;
-    
+    int j=0;
+    for (int i = 0; i < n; i++)
+    {
+        printf("%d%d",arr[i][j],arr[i+1][j]);
 
-}
 
-    printf("the average is %f",avg);
 }
