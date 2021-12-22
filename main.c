@@ -3,14 +3,7 @@
 #include <string.h>
 #define WORD 30
 #define TXT 1024
-int isSame(int *a, int *b) // compare whether two int arrays are the same
-{
-    int i;
-    for (i = 0; i < 26; i++)
-        if (a[i] != b[i])
-            return 0;
-    return 1;
-}
+
 char *remove_white_spaces(char str[])
 {
     int i = 0, j = 0;
@@ -125,9 +118,9 @@ void findAnagrams(char *str, char *word)
     char *stringa_without_spaces = (char *)malloc(number * sizeof(char));
     strcpy(stringa_without_spaces, remove_white_spaces(stringa_for_rem_space));
     free(stringa_for_rem_space);
-    int str_0[number]; // = (int *)malloc(number * sizeof(int));
+    int *str_0=(int *)malloc(number * sizeof(int));
     memset(str_0, 0, sizeof str_0);
-    int str_spacec[number]; // = (int *)malloc(number * sizeof(int));
+    int *str_spacec= (int *)malloc(number * sizeof(int));
     memset(str_spacec, 0, sizeof str_spacec);
     for (int i = 0; i < strlen(str); i++)
     {
