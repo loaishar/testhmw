@@ -95,16 +95,41 @@ bool Graph_expand(struct Graph **g, size_t nodes)
   }
   return false;
 }
+void addEdge(struct Graph *graph, int src, int dest, int weight)
+{
+  struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
+  newNode->dest = dest;
+  newNode->weight = weight;
+
+  // point new node to the current head
+  newNode->next = graph->head[src];
+
+  // point head pointer to the new node
+  graph->head[src] = newNode;
+}
+void Node_delete_list(struct Node **node_pp) {
+   struct Node *node = *node_pp;
+   while (node) {
+      struct Node *next = node->next;
+      free(node);
+      node = next;
+   }
+
+   *node_pp = NULL;
+}
 
 int main()
 {
+  char *inputString2;
+  int len;
+  struct Graph *graph;
   char user_input;
   while (scanf("%c", &user_input))
   {
     if (user_input == 'A')
     {
       printf("please, start buting your input: \n");
-      char inputString[1000], inputString2[1000], c;
+      char *inputString = malloc(1), c;
       int index = 0;
       /* Read string from user using getchar
        inside while loop */
@@ -112,16 +137,19 @@ int main()
       while ((c = getchar()) != '\n')
       {
         inputString[index] = c;
+        inputString = realloc(inputString, index + 1);
         index++;
       }
 
       inputString[index] = '\0';
+
+      inputString2 = malloc(sizeof(char) * index);
       strcpy(inputString2, inputString);
       /* Print string stored in inputString using putchar */
       char delim[] = "n";
 
       char *ptr = strtok(inputString, delim);
-      int len = 0;
+      len = 0;
       while (ptr != NULL)
       {
         if (ptr[0] != 'A')
@@ -150,25 +178,44 @@ int main()
           }
         }
       }
-      struct Graph *graph;
+
       graph = createGraph(edges, len);
       printGraph(graph, len);
-      if (Graph_expand(&graph, len))
-        puts("Expansion succeeded");
-      printf("%zu\n", graph->nodes);
 
       // Function to print adjacency list representation of a graph
     }
     if (user_input == 'B')
-        {
+    {
+      char *s = malloc(1);
+      int c;
+      int i = 0;
+      /* Read characters until found an EOF or newline character. */
+      while ((c = getchar()) != '\n' && c != EOF)
+      {
+        s[i++] = c;
+        s = realloc(s, i + 1); // Add space for another character to be read.
+      }
+      s[i] = '\0';
 
+      printf("Entered string: \t%s\n", s);
+      len+=(strlen(s)-1);
+      if(Graph_expand(&graph, len))puts("Expansion succeeded");
+      printf("%zu\n", graph->nodes);
+      int index_s=s[0]- '0';
+      Node_delete_list(&(graph->head[index_s]));
 
-
-//// hit there
-
-
-
-        }
+      /*
+      
+      for (int i = 0; i < strlen(s); i += 2)
+      {
+        int src1 = s[0];
+        int dest1 = s[i + 1];
+        int weight1 = s[i + 2];
+        addEdge(graph,src1,dest1,weight1);
+      }
+*/
+      printGraph(graph, len);
+    }
   }
   return 0;
 }
