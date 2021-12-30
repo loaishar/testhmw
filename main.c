@@ -204,16 +204,16 @@ int main()
       int index_s=s[0]- '0';
       Node_delete_list(&(graph->head[index_s]));
 
-      /*
+      
       
       for (int i = 0; i < strlen(s); i += 2)
       {
-        int src1 = s[0];
-        int dest1 = s[i + 1];
-        int weight1 = s[i + 2];
+        int src1 = s[0]-'0';
+        int dest1 = s[i + 1]-'0';
+        int weight1 = s[i + 2]-'0';
         addEdge(graph,src1,dest1,weight1);
       }
-*/
+
       printGraph(graph, len);
     }
   }
