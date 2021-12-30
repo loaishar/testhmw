@@ -95,17 +95,18 @@ bool Graph_expand(struct Graph **g, size_t nodes)
   }
   return false;
 }
-void addEdge(struct Graph *graph, int src, int dest, int weight)
+void addEdge(struct Node **node_pp, int dest, int weight)
 {
-  struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
-  newNode->dest = dest;
-  newNode->weight = weight;
+struct Node *node = *node_pp;
+struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
+newNode->dest = dest;
+newNode->weight = weight;
 
-  // point new node to the current head
-  newNode->next = graph->head[src];
+// point new node to the current head
+newNode->next = node;
 
-  // point head pointer to the new node
-  graph->head[src] = newNode;
+// point head pointer to the new node
+*node_pp = newNode;
 }
 void Node_delete_list(struct Node **node_pp) {
    struct Node *node = *node_pp;
@@ -211,7 +212,7 @@ int main()
         int src1 = s[0]-'0';
         int dest1 = s[i + 1]-'0';
         int weight1 = s[i + 2]-'0';
-        addEdge(graph,src1,dest1,weight1);
+        addEdge(&(graph->head[1]),dest1,weight1);
       }
 
       printGraph(graph, len);
