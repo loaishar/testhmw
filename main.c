@@ -103,7 +103,7 @@ newNode->dest = dest;
 newNode->weight = weight;
 
 // point new node to the current head
-newNode->next = node;
+newNode->next = *node_pp;
 
 // point head pointer to the new node
 *node_pp = newNode;
@@ -206,13 +206,12 @@ int main()
       Node_delete_list(&(graph->head[index_s]));
 
       
-      
-      for (int i = 0; i < strlen(s); i += 2)
+      int src1 = s[0]-'0';
+      for (int i = 1; i < strlen(s); i += 2)
       {
-        int src1 = s[0]-'0';
-        int dest1 = s[i + 1]-'0';
-        int weight1 = s[i + 2]-'0';
-        addEdge(&(graph->head[1]),dest1,weight1);
+        int dest1 = s[i ]-'0';
+        int weight1 = s[i + 1]-'0';
+        addEdge(&(graph->head[src1]),dest1,weight1);
       }
 
       printGraph(graph, len);
