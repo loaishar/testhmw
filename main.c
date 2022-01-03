@@ -82,25 +82,22 @@ void printGraph(struct Graph *graph, size_t nodes)
 /*******************************/
 int Dijkstra(int **Graph, int n, int i_input, int j_input)
 {
- // int xer;
-  //scanf(" %d", &xer);
-  //int *arr22 =(int*) malloc(xer * sizeof(int));
-  int *distance =(int*) malloc(n * sizeof(int)); // pred[V];
+  // int xer;
+  // scanf(" %d", &xer);
+  // int *arr22 =(int*) malloc(xer * sizeof(int));
+  int *distance = (int *)malloc(n * sizeof(int)); // pred[V];
   /****/
 
-  
-/****/
-int **cost;
-      /* allocate the array */
-      cost = malloc(n * sizeof *cost);
-      for (int i = 0; i < n; i++)
-      {
-        cost[i] = malloc(n * sizeof *cost[i]);
-      }
+  /****/
+  int **cost;
+  /* allocate the array */
+  cost = malloc(n * sizeof *cost);
+  for (int i = 0; i < n; i++)
+  {
+    cost[i] = malloc(n * sizeof *cost[i]);
+  }
 
-/****/
-
-
+  /****/
 
   int *visited = (int *)malloc(n * sizeof(int)), count, mindistance, nextnode, i, j;
 
@@ -377,7 +374,7 @@ int main()
       int user_input_1, user_input_2;
       scanf("%d %d", &user_input_1, &user_input_2);
       int mat_i = 0, mat_j = 0;
-      //int adjMatrix[len][len];
+      // int adjMatrix[len][len];
       int **adjMatrix;
       /* allocate the array */
       adjMatrix = malloc(len * sizeof *adjMatrix);
