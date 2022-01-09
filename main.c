@@ -257,21 +257,70 @@ void Node_delete_list(struct Node **node_pp)
 
   *node_pp = NULL;
 }
-
+/*****to be deleted****
 void changeColumn(int **matrix, int col, int len)
 {
-          for (int columns = 0; columns < len; columns++)
-          {
-            matrix[columns][col]=INFINITY;
-          }
+  for (int columns = 0; columns < len; columns++)
+  {
+    matrix[columns][col] = INFINITY;
+  }
 }
 void changeRow(int **matrix, int row, int len)
 {
- for (int rows = 0; rows < len; rows++)
-          {
-            matrix[row][rows]=INFINITY;
-          }
+  for (int rows = 0; rows < len; rows++)
+  {
+    matrix[row][rows] = INFINITY;
+  }
 }
+end to be deleted**********/
+
+/*********5*********
+int min(int num1, int num2)
+{
+  return (num1 > num2) ? num2 : num1;
+}
+*****/
+int minimumCostSimplePath(int u, int destination, bool visited[], int **graph, int len)
+{
+
+  // check if we find the destination
+  // then further cost will be 0
+  if (u == destination)
+    return 0;
+
+  // marking the current node as visited
+  visited[u] = 1;
+
+  int ans = INFINITY;
+
+  // traverse through all
+  // the adjacent nodes
+  for (int i = 0; i < len; i++)
+  {
+    if (graph[u][i] != INFINITY && !visited[i])
+    {
+
+      // cost of the further path
+      int curr = minimumCostSimplePath(i, destination, visited, graph, len);
+
+      // check if we have reached the destination
+      if (curr < INFINITY)
+      {
+
+        // Taking the minimum cost path
+        ans = (ans > graph[u][i] + curr) ? graph[u][i] + curr : ans;
+      }
+    }
+  }
+
+  // unmarking the current node
+  // to make it available for other
+  // simple paths
+  visited[u] = 0;
+  // returning the minimum cost
+  return ans;
+}
+/*********end 5*********/
 
 int main()
 {
@@ -281,7 +330,8 @@ int main()
   int len;
   struct Graph *graph;
   char user_input;
-  while (scanf("%c", &user_input))
+  scanf(" %c", &user_input);
+  while (1)
   {
     if (user_input == 'A')
     {
@@ -290,8 +340,9 @@ int main()
       int index = 0;
       /* Read string from user using getchar
        inside while loop */
+      // while ((c = getchar()) != '\n' && c != 'A' && c != 'D'&& c != 'B'&& c != EOF && c != 'T' && c != 'S')
 
-      while ((c = getchar()) != '\n')
+      while ((c = getchar()) != '\n' && c != 'A' && c != 'D' && c != 'B' && c != EOF && c != 'T' && c != 'S')
       {
         inputString[index] = c;
         inputString = realloc(inputString, index + 1);
@@ -299,6 +350,8 @@ int main()
       }
 
       inputString[index] = '\0';
+      user_input = c;
+      printf("\n the A input is >>%s\n", inputString);
 
       inputString2 = malloc(sizeof(char) * index);
       strcpy(inputString2, inputString);
@@ -335,11 +388,51 @@ int main()
           }
         }
       }
-
+      int yen = inputString[0] - '0';
+      len = yen;
       graph = createGraph(edges, len);
-      printGraph(graph, len);
+      // printGraph(graph, len);
 
       // Function to print adjacency list representation of a graph
+
+      int mat_i = 0, mat_j = 0;
+      // int adjMatrix[len][len];
+      /* allocate the array */
+      adjMatrix = malloc(len * sizeof *adjMatrix);
+      for (int i = 0; i < len; i++)
+      {
+        adjMatrix[i] = malloc(len * sizeof *adjMatrix[i]);
+      }
+
+      for (int mat_i = 0; mat_i < len; mat_i++)
+      {
+        for (int mat_j = 0; mat_j < len; mat_j++)
+        {
+          adjMatrix[mat_i][mat_j] = 0;
+        }
+      }
+       printGraph(graph, len);
+      for (int i = 0; i < len; i++)
+      {
+        // print current vertex and all its neighbors
+        struct Node *ptr = graph->head[i];
+        while (ptr != NULL)
+        {
+          // printf("%d —> %d (%d)\t", i, ptr->dest, ptr->weight);
+          adjMatrix[i][ptr->dest] = ptr->weight;
+          ptr = ptr->next;
+        }
+      }
+      /****print matrix****/
+      for (int row = 0; row < len; row++)
+      {
+        for (int columns = 0; columns < len; columns++)
+        {
+          printf("%d     ", adjMatrix[row][columns]);
+        }
+        printf("\n");
+      }
+      /****end print******/
     }
     if (user_input == 'B')
     {
@@ -347,17 +440,24 @@ int main()
       int c;
       int i = 0;
       /* Read characters until found an EOF or newline character. */
-      while ((c = getchar()) != '\n' && c != EOF)
+      while ((c = getchar()) != '\n' && c != 'A' && c != 'D' && c != 'B' && c != EOF && c != 'T' && c != 'S')
       {
         s[i++] = c;
         s = realloc(s, i + 1); // Add space for another character to be read.
       }
       s[i] = '\0';
+      user_input = c;
+      printf("\n the B input is >>%s\n", s);
 
       printf("Entered string: \t%s\n", s);
-      len += (strlen(s) - 1);
-      if (Graph_expand(&graph, len))
-        puts("Expansion succeeded");
+      len += 1;
+
+      int m = s[0]-'0';
+      if (graph->head[m])
+      {
+        if (Graph_expand(&graph, len))
+          puts("Expansion succeeded");
+      }
       printf("%zu\n", graph->nodes);
       int index_s = s[0] - '0';
       Node_delete_list(&(graph->head[index_s]));
@@ -369,33 +469,7 @@ int main()
         int weight1 = s[i + 1] - '0';
         addEdge(&(graph->head[src1]), dest1, weight1);
       }
-
-      printGraph(graph, len);
-    }
-    if (user_input == 'D')
-    {
-      int input_d;
-      scanf("%d", &input_d);
-      // int yen=Node_delete(graph, 3);
-      Node_delete_list(&(graph->head[input_d]));
-      for (int i = 0; i < graph->nodes; i++)
-      {
-        // deleteNode(&(graph->head[i]), input_d);
-        Node_delete(graph, input_d);
-      }
-      printGraph(graph, len);
-    }
-    if (user_input == 'S')
-    {
-      char c;
-      int i = 0;
-      char *s_input = malloc(1);
-      while ((c = getchar()) != '\n' && c != EOF)
-      {
-        s_input[i++] = c;
-        s_input = realloc(s_input, i + 1); // Add space for another character to be read.
-      }
-      s_input[i] = '\0';
+      /****update values of weights****/
       int mat_i = 0, mat_j = 0;
       // int adjMatrix[len][len];
       /* allocate the array */
@@ -423,6 +497,47 @@ int main()
           ptr = ptr->next;
         }
       }
+      /****ENd update values of weights****/
+
+      printGraph(graph, len);
+      /****print matrix****/
+      for (int row = 0; row < len; row++)
+      {
+        for (int columns = 0; columns < len; columns++)
+        {
+          printf("%d     ", adjMatrix[row][columns]);
+        }
+        printf("\n");
+      }
+      /****end print******/
+    }
+    if (user_input == 'D')
+    {
+      int input_d;
+      scanf("%d", &input_d);
+      // int yen=Node_delete(graph, 3);
+      Node_delete_list(&(graph->head[input_d]));
+      for (int i = 0; i < graph->nodes; i++)
+      {
+        // deleteNode(&(graph->head[i]), input_d);
+        Node_delete(graph, input_d);
+      }
+      printGraph(graph, len);
+      scanf(" %c", &user_input);
+    }
+    if (user_input == 'S')
+    {
+      char c;
+      int i = 0;
+      char *s_input = malloc(1);
+      while ((c = getchar()) != '\n' && c != 'A' && c != 'D' && c != 'B' && c != 'T' && c != 'S' && c != EOF)
+      {
+        s_input[i++] = c;
+        s_input = realloc(s_input, i + 1); // Add space for another character to be read.
+      }
+      s_input[i] = '\0';
+      user_input = c;
+      printf("\n the S input is >>%s\n", s_input);
       int row, columns;
       for (row = 0; row < len; row++)
       {
@@ -447,12 +562,14 @@ int main()
       int i = 0;
       char c;
       char *t = malloc(1);
-      while ((c = getchar()) != '\n' && c != EOF)
+      while ((c = getchar()) != '\n' && c != 'A' && c != 'D' && c != 'B' && c != 'T' && c != 'S' && c != EOF)
       {
         t[i++] = c;
         t = realloc(t, i + 1); // Add space for another character to be read.
       }
       t[i] = '\0';
+      user_input = c;
+      printf("\n the T input is >>%s\n", t);
       int **adjMatrix_dest = malloc(len * sizeof *adjMatrix);
       for (int i = 0; i < len; i++)
       {
@@ -470,41 +587,45 @@ int main()
         printf("\n");
       }
       /*****end print******/
-      int colx;
-      int rowx;
-      int c1=0;
-      for (int i = 0; i < len; i++)
+      for (row = 0; row < len; row++)
       {
-        colx=t[i]-'0';
-        rowx=t[i]-'0';
-        for(int j=1;j<strlen(t);j++)
+        for (columns = 0; columns < len; columns++)
         {
-          if((t[j]-'0')!=i){
-             c1++;
-          }
-        }
- if (c1==(t[0]-'0')){
-        changeColumn(adjMatrix_dest, i, len);
-        changeRow(adjMatrix_dest,i, len);
-        printf("delteing %d \n",i);
-        /****print matrix****/
-        for (row = 0; row < len; row++)
-        {
-          for (columns = 0; columns < len; columns++)
+          if (adjMatrix_dest[row][columns] == 0)
           {
-            printf("%d     ", adjMatrix_dest[row][columns]);
+            adjMatrix_dest[row][columns] = INFINITY;
           }
-          printf("\n");
         }
-        /*****end print******/
+        printf("\n");
       }
-      printf("\n");
-      c1=0;
+      /****print matrix****/
+      for (row = 0; row < len; row++)
+      {
+        for (columns = 0; columns < len; columns++)
+        {
+          printf("%d     ", adjMatrix_dest[row][columns]);
+        }
+        printf("\n");
       }
+      /****end print******/
       printf("\n\nThe Path is:\n");
-      mincost(0, completed, adjMatrix_dest); // passing 0 because starting vertex
 
-      printf("\n\nMinimum cost is %d\n ", cost);
+      bool *visited = (bool *)malloc(len * sizeof(bool));
+      memset(visited, 0, len * sizeof(*visited));
+
+      // initialising the edges;
+
+      // source and destination
+
+      int s = t[1] - '0', m = t[(strlen(t) - 1)] - '0';
+
+      // marking the source as visited
+      visited[s] = 1;
+
+      int result;
+      result = minimumCostSimplePath(s, m, visited, adjMatrix_dest, len);
+
+      printf("\n\nMinimum cost is %d\n ", result);
     }
   }
   return 0;
