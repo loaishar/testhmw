@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #define INFINITY 999
-
+int n, cost = 0;
 // Define the maximum number of vertices in the graph
 
 // Data structure to store a graph object
@@ -26,6 +26,51 @@ struct Edge
 {
   int src, dest, weight;
 };
+/*************4*******************************/
+void mincost(int city, int *completed, int **ary)
+{
+  int i, ncity;
+
+  completed[city] = 1;
+
+  printf("%d--->", city + 1);
+  ncity = least(city, completed, ary);
+
+  if (ncity == 999)
+  {
+    ncity = 0;
+    printf("%d", ncity + 1);
+    cost += ary[city][ncity];
+
+    return;
+  }
+
+  mincost(ncity, completed, ary);
+}
+
+int least(int c, int *completed, int **ary)
+{
+  int i, nc = 999;
+  int min = 999, kmin;
+
+  for (i = 0; i < n; i++)
+  {
+    if ((ary[c][i] != 0) && (completed[i] == 0))
+      if (ary[c][i] + ary[i][c] < min)
+      {
+        min = ary[i][0] + ary[c][i];
+        kmin = ary[c][i];
+        nc = i;
+      }
+  }
+
+  if (min != 999)
+    cost += kmin;
+
+  return nc;
+}
+
+/*************END 4*******************************/
 
 // Function to create an adjacency list from specified edges
 struct Graph *createGraph(struct Edge edges[], size_t nodes)
@@ -259,8 +304,25 @@ void Node_delete_list(struct Node **node_pp)
   *node_pp = NULL;
 }
 
+void changeColumn(int **matrix, int col, int len)
+{
+          for (int columns = 0; columns < len; columns++)
+          {
+            matrix[columns][col]=-1;
+          }
+}
+void changeRow(int **matrix, int row, int len)
+{
+ for (int rows = 0; rows < len; rows++)
+          {
+            matrix[row][rows]=-1;
+          }
+}
+
 int main()
 {
+  int **adjMatrix;
+  int *completed;
   char *inputString2;
   int len;
   struct Graph *graph;
@@ -371,11 +433,17 @@ int main()
     }
     if (user_input == 'S')
     {
-      int user_input_1, user_input_2;
-      scanf("%d %d", &user_input_1, &user_input_2);
+      char c;
+      int i = 0;
+      char *s_input = malloc(1);
+      while ((c = getchar()) != '\n' && c != EOF)
+      {
+        s_input[i++] = c;
+        s_input = realloc(s_input, i + 1); // Add space for another character to be read.
+      }
+      s_input[i] = '\0';
       int mat_i = 0, mat_j = 0;
       // int adjMatrix[len][len];
-      int **adjMatrix;
       /* allocate the array */
       adjMatrix = malloc(len * sizeof *adjMatrix);
       for (int i = 0; i < len; i++)
@@ -410,12 +478,79 @@ int main()
         }
         printf("\n");
       }
+      int S_input1 = s_input[0] - '0';
+      int S_input2 = s_input[1] - '0';
 
-      int shortest_path = Dijkstra(adjMatrix, len, user_input_1, user_input_2);
+      int shortest_path = Dijkstra(adjMatrix, len, S_input1, S_input2);
       if (shortest_path != INFINITY)
         printf("%d\n", shortest_path);
       else
         printf("-1\n");
+    }
+    if (user_input == 'T')
+    {
+      completed = (int *)malloc(len * sizeof(int));
+      int i = 0;
+      char c;
+      char *t = malloc(1);
+      while ((c = getchar()) != '\n' && c != EOF)
+      {
+        t[i++] = c;
+        t = realloc(t, i + 1); // Add space for another character to be read.
+      }
+      t[i] = '\0';
+      int **adjMatrix_dest = malloc(len * sizeof *adjMatrix);
+      for (int i = 0; i < len; i++)
+      {
+        adjMatrix[i] = malloc(len * sizeof *adjMatrix[i]);
+      }
+      memcpy(adjMatrix_dest, adjMatrix, len * len * sizeof(int));
+      /****print matrix****/
+      int row, columns;
+      for (row = 0; row < len; row++)
+      {
+        for (columns = 0; columns < len; columns++)
+        {
+          printf("%d     ", adjMatrix_dest[row][columns]);
+        }
+        printf("\n");
+      }
+      /*****end print******/
+      int colx;
+      int rowx;
+      int c1=0;
+      for (int i = 0; i < len; i++)
+      {
+        colx=t[i]-'0';
+        rowx=t[i]-'0';
+        for(int j=1;j<strlen(t);j++)
+        {
+          if((t[j]-'0')!=i){
+             c1++;
+          }
+        }
+ if (c1==(t[0]-'0')){
+        changeColumn(adjMatrix_dest, i, len);
+        changeRow(adjMatrix_dest,i, len);
+        printf("delteing %d \n",i);
+        /****print matrix****/
+        for (row = 0; row < len; row++)
+        {
+          for (columns = 0; columns < len; columns++)
+          {
+            printf("%d     ", adjMatrix_dest[row][columns]);
+          }
+          printf("\n");
+        }
+        /*****end print******/
+      }
+      printf("\n");
+      c1=0;
+      }
+      printf("\n\nThe Path is:\n");
+      mincost(0, completed, adjMatrix_dest); // passing 0 because starting vertex
+
+      printf("\n\nMinimum cost is %d\n ", cost);
     }
   }
   return 0;
