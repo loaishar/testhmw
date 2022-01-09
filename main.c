@@ -26,52 +26,6 @@ struct Edge
 {
   int src, dest, weight;
 };
-/*************4*******************************/
-void mincost(int city, int *completed, int **ary)
-{
-  int i, ncity;
-
-  completed[city] = 1;
-
-  printf("%d--->", city + 1);
-  ncity = least(city, completed, ary);
-
-  if (ncity == 999)
-  {
-    ncity = 0;
-    printf("%d", ncity + 1);
-    cost += ary[city][ncity];
-
-    return;
-  }
-
-  mincost(ncity, completed, ary);
-}
-
-int least(int c, int *completed, int **ary)
-{
-  int i, nc = 999;
-  int min = 999, kmin;
-
-  for (i = 0; i < n; i++)
-  {
-    if ((ary[c][i] != 0) && (completed[i] == 0))
-      if (ary[c][i] + ary[i][c] < min)
-      {
-        min = ary[i][0] + ary[c][i];
-        kmin = ary[c][i];
-        nc = i;
-      }
-  }
-
-  if (min != 999)
-    cost += kmin;
-
-  return nc;
-}
-
-/*************END 4*******************************/
-
 // Function to create an adjacency list from specified edges
 struct Graph *createGraph(struct Edge edges[], size_t nodes)
 {
@@ -308,14 +262,14 @@ void changeColumn(int **matrix, int col, int len)
 {
           for (int columns = 0; columns < len; columns++)
           {
-            matrix[columns][col]=-1;
+            matrix[columns][col]=INFINITY;
           }
 }
 void changeRow(int **matrix, int row, int len)
 {
  for (int rows = 0; rows < len; rows++)
           {
-            matrix[row][rows]=-1;
+            matrix[row][rows]=INFINITY;
           }
 }
 
