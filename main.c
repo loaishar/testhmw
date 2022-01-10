@@ -2,82 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#define INFINITY 999
+#include "algo.h"
 int n, cost = 0;
+#include <limits.h>
+//static int TSP_lenght =INT_MAX;
+
 // Define the maximum number of vertices in the graph
 
 // Data structure to store a graph object
-struct Graph
-{
-  // An array of pointers to Node to represent an adjacency list
-  size_t nodes;
-  struct Node *head[];
-};
 
-// Data structure to store adjacency list nodes of the graph
-struct Node
-{
-  int dest, weight;
-  struct Node *next;
-};
-
-// Data structure to store a graph edge
-struct Edge
-{
-  int src, dest, weight;
-};
-// Function to create an adjacency list from specified edges
-struct Graph *createGraph(struct Edge edges[], size_t nodes)
-{
-  // allocate storage for the graph data structure
-  struct Graph *graph = malloc(sizeof *graph + sizeof(struct Node *[nodes]));
-  if (graph)
-    graph->nodes = nodes;
-  // initialize head pointer for all vertices
-  for (int i = 0; i < nodes; i++)
-  {
-    graph->head[i] = NULL;
-  }
-
-  // add edges to the directed graph one by one
-  for (int i = 0; i < nodes; i++)
-  {
-    // get the source and destination vertex
-    int src = edges[i].src;
-    int dest = edges[i].dest;
-    int weight = edges[i].weight;
-
-    // allocate a new node of adjacency list from src to dest
-    struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
-    newNode->dest = dest;
-    newNode->weight = weight;
-
-    // point new node to the current head
-    newNode->next = graph->head[src];
-
-    // point head pointer to the new node
-    graph->head[src] = newNode;
-  }
-
-  return graph;
-}
-
-// Function to print adjacency list representation of a graph
-void printGraph(struct Graph *graph, size_t nodes)
-{
-  for (int i = 0; i < nodes; i++)
-  {
-    // print current vertex and all its neighbors
-    struct Node *ptr = graph->head[i];
-    while (ptr != NULL)
-    {
-      printf("%d —> %d (%d)\t", i, ptr->dest, ptr->weight);
-      ptr = ptr->next;
-    }
-
-    printf("\n");
-  }
-}
 /*******************************/
 int Dijkstra(int **Graph, int n, int i_input, int j_input)
 {
@@ -85,6 +18,11 @@ int Dijkstra(int **Graph, int n, int i_input, int j_input)
   // scanf(" %d", &xer);
   // int *arr22 =(int*) malloc(xer * sizeof(int));
   int *distance = (int *)malloc(n * sizeof(int)); // pred[V];
+  if (distance == NULL)
+  {
+    printf("Error! memory not allocated.");
+    exit(0);
+  }
   /****/
 
   /****/
@@ -152,11 +90,72 @@ int Dijkstra(int **Graph, int n, int i_input, int j_input)
       }
     }
   }
+  for (int i = 0; i < n; i++)
+  {
+    int *currentIntPtr = cost[i];
+    free(currentIntPtr);
+  }
+  free(distance);
   return -1;
 }
 /*******************************/
+// Function to create an adjacency list from specified edges
+struct Graph *createGraph(struct Edge edges[], size_t nodes)
+{
+  // allocate storage for the graph data structure
+  struct Graph *graph = malloc(sizeof *graph + sizeof(struct Node *[nodes]));
+  if (graph)
+    graph->nodes = nodes;
+  // initialize head pointer for all vertices
+  for (int i = 0; i < nodes; i++)
+  {
+    graph->head[i] = NULL;
+  }
 
-// Weighted Directed graph implementation in C
+  // add edges to the directed graph one by one
+  for (int i = 0; i < nodes; i++)
+  {
+    // get the source and destination vertex
+    int src = edges[i].src;
+    int dest = edges[i].dest;
+    int weight = edges[i].weight;
+
+    // allocate a new node of adjacency list from src to dest
+    struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
+    if (newNode == NULL)
+    {
+      printf("Error! memory not allocated.");
+      exit(0);
+    }
+    newNode->dest = dest;
+    newNode->weight = weight;
+
+    // point new node to the current head
+    newNode->next = graph->head[src];
+
+    // point head pointer to the new node
+    graph->head[src] = newNode;
+  }
+
+  return graph;
+}
+
+// Function to print adjacency list representation of a graph
+void printGraph(struct Graph *graph, size_t nodes)
+{
+  for (int i = 0; i < nodes; i++)
+  {
+    // print current vertex and all its neighbors
+    struct Node *ptr = graph->head[i];
+    while (ptr != NULL)
+    {
+      printf("%d —> %d (%d)\t", i, ptr->dest, ptr->weight);
+      ptr = ptr->next;
+    }
+
+    printf("\n");
+  }
+}
 
 bool Graph_expand(struct Graph **g, size_t nodes)
 {
@@ -172,114 +171,7 @@ bool Graph_expand(struct Graph **g, size_t nodes)
   }
   return false;
 }
-// int Node_delete(struct Graph *graph,int dest) {
-/*
-void deleteNode(struct Node **head_ref, int key)
-{
-struct Node *temp = *head_ref, *prev;
 
-if (temp != NULL && temp->dest == key)
-{
-  *head_ref = temp->next;
-  free(temp);
-  return;
-}
-// Find the key to be deleted
-while (temp != NULL && temp->dest != key)
-{
-  prev = temp;
-  temp = temp->next;
-}
-
-// If the key is not present
-if (temp == NULL)
-  return;
-
-// Remove the node
-prev->next = temp->next;
-
-free(temp);
-}
-*/
-//}
-static int Node_delete(struct Graph *graph, int distance)
-{
-  int res = 0;
-  for (int i = 0; i < graph->nodes; i++)
-  {
-    struct Node *first = graph->head[i];
-    struct Node *n = first;
-    while (first && first->dest == distance)
-    {
-      first = first->next;
-      free(n);
-      res++;
-      n = first;
-    }
-    while (n && n->next)
-    {
-      struct Node *next = n->next;
-      if (next->dest == distance)
-      {
-        n->next = next->next;
-        free(next);
-        res++;
-      }
-      n = n->next;
-    }
-    graph->head[i] = first;
-  }
-  return res;
-}
-
-void addEdge(struct Node **node_pp, int dest, int weight)
-{
-  struct Node *node = *node_pp;
-  struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
-  newNode->dest = dest;
-  newNode->weight = weight;
-
-  // point new node to the current head
-  newNode->next = *node_pp;
-
-  // point head pointer to the new node
-  *node_pp = newNode;
-}
-void Node_delete_list(struct Node **node_pp)
-{
-  struct Node *node = *node_pp;
-  while (node)
-  {
-    struct Node *next = node->next;
-    free(node);
-    node = next;
-  }
-
-  *node_pp = NULL;
-}
-/*****to be deleted****
-void changeColumn(int **matrix, int col, int len)
-{
-  for (int columns = 0; columns < len; columns++)
-  {
-    matrix[columns][col] = INFINITY;
-  }
-}
-void changeRow(int **matrix, int row, int len)
-{
-  for (int rows = 0; rows < len; rows++)
-  {
-    matrix[row][rows] = INFINITY;
-  }
-}
-end to be deleted**********/
-
-/*********5*********
-int min(int num1, int num2)
-{
-  return (num1 > num2) ? num2 : num1;
-}
-*****/
 int minimumCostSimplePath(int u, int destination, bool visited[], int **graph, int len)
 {
 
@@ -321,26 +213,117 @@ int minimumCostSimplePath(int u, int destination, bool visited[], int **graph, i
   return ans;
 }
 /*********end 5*********/
+/***
+void TSP_cmd(struct Node  *first, int len, int arr[])
+{
 
+    struct Node  temp = *first;
+    TSP_lenght = INT_MAX;
+
+    rout(&temp, arr, 0, len - 1);
+
+    if (TSP_lenght == INT_MAX)
+    {
+
+        TSP_lenght = -1;
+    }
+
+    printf("TSP shortest path: %d ", TSP_lenght);
+    TSP_lenght = INT_MAX;
+}
+void rout(struct Node *first, int *a, int start, int end)
+{
+    if (start == end)
+    {
+
+        int sum = 0;
+        int j = 1;
+
+        for (int i = 0; i <= end; ++i)
+        {
+
+            if (j <= end)
+            {
+
+                int **edges_out_ptr = &a;
+                int s = *(i + *edges_out_ptr);
+                int d = (*(j + *edges_out_ptr));
+                int temp = shortest_path_cmd(first, s, d);
+
+                if (temp == INT_MAX)
+                {
+
+                    sum = INT_MAX;
+                    return;
+                }
+                else
+                {
+
+                    sum = sum + temp;
+                    j += 1;
+                }
+            }
+        }
+        if (sum < TSP_lenght)
+        {
+
+            TSP_lenght = sum;
+        }
+    }
+    else
+    {
+
+        for (int i = start; i <= end; i++)
+        {
+
+            swap((a + start), (a + i));
+            rout(first, a, start + 1, end);
+            swap((a + start), (a + i)); // backtrack
+        }
+    }
+}
+**/
 int main()
 {
+  
+  int **adjMatrix_dest;
+  bool *visited;
   int **adjMatrix;
-  int *completed;
+  //int *completed;
   char *inputString2;
   int len;
   struct Graph *graph;
   char user_input;
-  scanf(" %c", &user_input);
+  scanf("%c", &user_input);
   while (1)
   {
+    if(user_input=='\n')
+     scanf("%c", &user_input);
+    
     if (user_input == 'A')
     {
-      printf("please, start buting your input: \n");
+      if(graph)
+      {
+        for (int i = 0; i < len; i++)
+      {
+        Node_delete_list((&graph->head[i]));
+      }
+      }
+      //free(graph);
+      //len=0;
+      //if(graph)
+       // printGraph(graph, len);
+      // printf("please, start buting your input: \n");
       char *inputString = malloc(1), c;
+      if (inputString == NULL)
+      {
+        printf("Error! memory not allocated.");
+        exit(0);
+      }
+
       int index = 0;
       /* Read string from user using getchar
        inside while loop */
-      // while ((c = getchar()) != '\n' && c != 'A' && c != 'D'&& c != 'B'&& c != EOF && c != 'T' && c != 'S')
 
       while ((c = getchar()) != '\n' && c != 'A' && c != 'D' && c != 'B' && c != EOF && c != 'T' && c != 'S')
       {
@@ -351,28 +334,38 @@ int main()
 
       inputString[index] = '\0';
       user_input = c;
-      printf("\n the A input is >>%s\n", inputString);
+      // printf("\n the A input is >>%s\n", inputString);
 
       inputString2 = malloc(sizeof(char) * index);
+      if (inputString2 == NULL)
+      {
+        printf("Error! memory not allocated.");
+        exit(0);
+      }
       strcpy(inputString2, inputString);
       /* Print string stored in inputString using putchar */
       char delim[] = "n";
 
-      char *ptr = strtok(inputString, delim);
+      char *ptr1 = strtok(inputString, delim);
       len = 0;
-      while (ptr != NULL)
+      while (ptr1 != NULL)
       {
-        if (ptr[0] != 'A')
+        if (ptr1[0] != 'A')
         {
-          printf("'%s'\n", ptr);
-          len = len + (strlen(ptr) - 1) / 2;
-          printf("\n%d\n", len);
+          // printf("'%s'\n", ptr);
+          len = len + (strlen(ptr1) - 1) / 2;
+          // printf("\n%d\n", len);
         }
-        ptr = strtok(NULL, delim);
+        ptr1 = strtok(NULL, delim);
       }
-      printf("----------------------------------------------------------------------\n");
-
+      free(ptr1);
+      // printf("----------------------------------------------------------------------\n");
       struct Edge *edges = (struct Edge *)malloc(len * sizeof(struct Edge));
+      if (edges == NULL)
+      {
+        printf("Error! memory not allocated.");
+        exit(0);
+      }
       int src_point, j = 0;
       for (int i = 0; i < strlen(inputString2); i++)
       {
@@ -388,20 +381,31 @@ int main()
           }
         }
       }
-      int yen = inputString[0] - '0';
-      len = yen;
+      free(inputString2);
+      free(inputString);
+
+      // graph = createGraph(edges, len);
+
+      // int yen = inputString[0] - '0';
       graph = createGraph(edges, len);
       // printGraph(graph, len);
+      // printf("done\n");
+      //  printGraph(graph, len);
 
       // Function to print adjacency list representation of a graph
 
-      int mat_i = 0, mat_j = 0;
+      //int mat_i = 0, mat_j = 0;
       // int adjMatrix[len][len];
       /* allocate the array */
       adjMatrix = malloc(len * sizeof *adjMatrix);
       for (int i = 0; i < len; i++)
       {
         adjMatrix[i] = malloc(len * sizeof *adjMatrix[i]);
+        if (adjMatrix == NULL)
+        {
+          printf("Error! memory not allocated.");
+          exit(0);
+        }
       }
 
       for (int mat_i = 0; mat_i < len; mat_i++)
@@ -411,7 +415,7 @@ int main()
           adjMatrix[mat_i][mat_j] = 0;
         }
       }
-       printGraph(graph, len);
+      // printGraph(graph, len);
       for (int i = 0; i < len; i++)
       {
         // print current vertex and all its neighbors
@@ -423,7 +427,7 @@ int main()
           ptr = ptr->next;
         }
       }
-      /****print matrix****/
+      /****print matrix***
       for (int row = 0; row < len; row++)
       {
         for (int columns = 0; columns < len; columns++)
@@ -432,33 +436,45 @@ int main()
         }
         printf("\n");
       }
-      /****end print******/
+      ***end print******/
+
+      // Function to print adjacency list representation of a graph
     }
     if (user_input == 'B')
     {
       char *s = malloc(1);
-      int c;
+      if (s == NULL)
+      {
+        printf("Error! memory not allocated.");
+        exit(0);
+      }
+      char c;
       int i = 0;
       /* Read characters until found an EOF or newline character. */
       while ((c = getchar()) != '\n' && c != 'A' && c != 'D' && c != 'B' && c != EOF && c != 'T' && c != 'S')
       {
         s[i++] = c;
         s = realloc(s, i + 1); // Add space for another character to be read.
+        if (s == NULL)
+        {
+          printf("Error! memory not allocated.");
+          exit(0);
+        }
       }
       s[i] = '\0';
       user_input = c;
-      printf("\n the B input is >>%s\n", s);
+      // printf("\n the B input is >>%s\n", s);
 
-      printf("Entered string: \t%s\n", s);
-      len += 1;
+      // printf("Entered string: \t%s\n", s);
 
-      int m = s[0]-'0';
-      if (graph->head[m])
+      int m = s[0] - '0';
+      if (!(graph->head[m]))
       {
-        if (Graph_expand(&graph, len))
+        len += 2;
+        if (!(Graph_expand(&graph, len)))
           puts("Expansion succeeded");
       }
-      printf("%zu\n", graph->nodes);
+      // printf("%zu\n", graph->nodes);
       int index_s = s[0] - '0';
       Node_delete_list(&(graph->head[index_s]));
 
@@ -470,7 +486,7 @@ int main()
         addEdge(&(graph->head[src1]), dest1, weight1);
       }
       /****update values of weights****/
-      int mat_i = 0, mat_j = 0;
+      //int mat_i = 0, mat_j = 0;
       // int adjMatrix[len][len];
       /* allocate the array */
       adjMatrix = malloc(len * sizeof *adjMatrix);
@@ -499,8 +515,8 @@ int main()
       }
       /****ENd update values of weights****/
 
-      printGraph(graph, len);
-      /****print matrix****/
+      // printGraph(graph, len);
+      /****print matrix***
       for (int row = 0; row < len; row++)
       {
         for (int columns = 0; columns < len; columns++)
@@ -509,7 +525,8 @@ int main()
         }
         printf("\n");
       }
-      /****end print******/
+      ***end print******/
+     free(s);
     }
     if (user_input == 'D')
     {
@@ -522,7 +539,7 @@ int main()
         // deleteNode(&(graph->head[i]), input_d);
         Node_delete(graph, input_d);
       }
-      printGraph(graph, len);
+      // printGraph(graph, len);
       scanf(" %c", &user_input);
     }
     if (user_input == 'S')
@@ -530,14 +547,25 @@ int main()
       char c;
       int i = 0;
       char *s_input = malloc(1);
+      if (s_input == NULL)
+      {
+        printf("Error! memory not allocated.");
+        exit(0);
+      }
       while ((c = getchar()) != '\n' && c != 'A' && c != 'D' && c != 'B' && c != 'T' && c != 'S' && c != EOF)
       {
         s_input[i++] = c;
         s_input = realloc(s_input, i + 1); // Add space for another character to be read.
+        if (s_input == NULL)
+        {
+          printf("Error! memory not allocated.");
+          exit(0);
+        }
       }
       s_input[i] = '\0';
       user_input = c;
-      printf("\n the S input is >>%s\n", s_input);
+      // printf("\n the S input is >>%s\n", s_input);
+      /****
       int row, columns;
       for (row = 0; row < len; row++)
       {
@@ -546,37 +574,48 @@ int main()
           printf("%d     ", adjMatrix[row][columns]);
         }
         printf("\n");
-      }
+      }***/
       int S_input1 = s_input[0] - '0';
       int S_input2 = s_input[1] - '0';
 
       int shortest_path = Dijkstra(adjMatrix, len, S_input1, S_input2);
       if (shortest_path != INFINITY)
-        printf("%d\n", shortest_path);
+        printf("\nDijsktrashortestpath:%d\n", shortest_path);
       else
         printf("-1\n");
+    free(s_input);
     }
     if (user_input == 'T')
     {
-      completed = (int *)malloc(len * sizeof(int));
+      //completed = (int *)malloc(len * sizeof(int));
       int i = 0;
       char c;
       char *t = malloc(1);
+      if (t == NULL)
+      {
+        printf("Error! memory not allocated.");
+        exit(0);
+      }
       while ((c = getchar()) != '\n' && c != 'A' && c != 'D' && c != 'B' && c != 'T' && c != 'S' && c != EOF)
       {
         t[i++] = c;
         t = realloc(t, i + 1); // Add space for another character to be read.
+        if (t == NULL)
+        {
+          printf("Error! memory not allocated.");
+          exit(0);
+        }
       }
       t[i] = '\0';
       user_input = c;
-      printf("\n the T input is >>%s\n", t);
-      int **adjMatrix_dest = malloc(len * sizeof *adjMatrix);
+      // printf("\n the T input is >>%s\n", t);
+      adjMatrix_dest = malloc(len * sizeof *adjMatrix);
       for (int i = 0; i < len; i++)
       {
         adjMatrix[i] = malloc(len * sizeof *adjMatrix[i]);
       }
       memcpy(adjMatrix_dest, adjMatrix, len * len * sizeof(int));
-      /****print matrix****/
+      /****print matrix***
       int row, columns;
       for (row = 0; row < len; row++)
       {
@@ -586,19 +625,19 @@ int main()
         }
         printf("\n");
       }
-      /*****end print******/
-      for (row = 0; row < len; row++)
+      ****end print******/
+      for (int row = 0; row < len; row++)
       {
-        for (columns = 0; columns < len; columns++)
+        for (int columns = 0; columns < len; columns++)
         {
           if (adjMatrix_dest[row][columns] == 0)
           {
             adjMatrix_dest[row][columns] = INFINITY;
           }
         }
-        printf("\n");
+        // printf("\n");
       }
-      /****print matrix****/
+      /****print matrix****
       for (row = 0; row < len; row++)
       {
         for (columns = 0; columns < len; columns++)
@@ -607,10 +646,15 @@ int main()
         }
         printf("\n");
       }
-      /****end print******/
-      printf("\n\nThe Path is:\n");
+      ***end print******/
+      // printf("\n\nThe Path is:\n");
 
-      bool *visited = (bool *)malloc(len * sizeof(bool));
+      visited = (bool *)malloc(len * sizeof(bool));
+      if (visited == NULL)
+      {
+        printf("Error! memory not allocated.");
+        exit(0);
+      }
       memset(visited, 0, len * sizeof(*visited));
 
       // initialising the edges;
@@ -624,9 +668,21 @@ int main()
 
       int result;
       result = minimumCostSimplePath(s, m, visited, adjMatrix_dest, len);
-
-      printf("\n\nMinimum cost is %d\n ", result);
+      //int arr2[3]={2,1,3};
+      printf("\nTSPshortestpath:%d ", result);
+     // TSP_cmd(graph->head[0], 3,arr2);
+      free(t);
     }
+  }
+  int *currentIntPtr;
+  free(visited);
+  
+  for (int i = 0; i < len; i++)
+  {
+    currentIntPtr = adjMatrix_dest[i];
+    free(currentIntPtr);
+    currentIntPtr = adjMatrix[i];
+    free(currentIntPtr);
   }
   return 0;
 }
